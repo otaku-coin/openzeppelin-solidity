@@ -18,6 +18,7 @@ contract ERC865Token is ERC865, StandardToken {
 
     event TransferPreSigned(address indexed from, address indexed to, address indexed delegate, uint256 amount, uint256 fee);
     event ApprovalPreSigned(address indexed from, address indexed to, address indexed delegate, uint256 amount, uint256 fee);
+    event TransferFromPreSigned(address indexed from, address indexed to, address indexed delegate, address spender, uint256 amount, uint256 fee);
 
     /**
      * @notice Submit a presigned transfer
@@ -163,7 +164,7 @@ contract ERC865Token is ERC865, StandardToken {
         balances[msg.sender] = balances[msg.sender].add(_fee);
         signatures[_signature] = true;
 
-        Approval(from, _spender, _subtractedValue);
+        Approval(from, _spender, allowed[from][_spender]);
         Transfer(from, msg.sender, _fee);
         ApprovalPreSigned(from, _spender, msg.sender, allowed[from][_spender], _fee);
         return true;
@@ -207,6 +208,7 @@ contract ERC865Token is ERC865, StandardToken {
 
         Transfer(_from, _to, _value);
         Transfer(spender, msg.sender, _fee);
+        TransferFromPreSigned(_from, _to, msg.sender, spender, _value, _fee);
         return true;
     }
 
